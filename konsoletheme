@@ -1,0 +1,17 @@
+#!/bin/bash
+
+WATCHFILE=/tmp/colors/konsole
+
+if [ ! -f $WATCHFILE ]; then
+    touch $WATCHFILE
+fi
+
+while inotifywait -q -e modify "$WATCHFILE" >/dev/null; do
+    # Find all terminals to printf the command to
+    terms=$(find /dev/pts/* | cut -f 1)
+    colorscheme=$(cat $WATCHFILE)
+    while read -r term; do
+        profileoutput=$(konsoleprofile colors="$colorscheme")
+        printf "%s" "$profileoutput" > "$term"
+    done <<< "$terms"
+done

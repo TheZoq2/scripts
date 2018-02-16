@@ -1,0 +1,5 @@
+#!/bin/bash
+
+wmctrl -r :SELECT: -e 0,300,0,1920,1080
+
+echo "Fixed?"

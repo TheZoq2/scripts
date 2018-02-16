@@ -1,0 +1,7 @@
+#!/bin/bash
+
+if [ -z $1 ]; then
+	echo "Please specify a video device (/dev/video<n>)"
+else
+	gphoto2 --stdout --capture-movie | gst-launch-0.10 fdsrc ! decodebin2 name=dec ! queue ! ffmpegcolorspace ! v4l2sink device=$1
+fi

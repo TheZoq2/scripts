@@ -1,0 +1,17 @@
+#!/bin/bash
+#8 is the id of the mouse
+#find with xinput
+id=$(xinput \
+    | grep G502 \
+    | grep '(2)' \
+    | grep pointer \
+    | head -n 2 \
+    | sed 's/.*id=\(\d*\)/\1/g' \
+    | awk '{print $1}')
+
+
+while read -r id ; do
+    echo "Setting id ${id}"
+
+    xinput set-prop "$id" 'libinput Accel Profile Enabled' 0, 1
+done <<< "$id"
