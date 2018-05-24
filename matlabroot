@@ -1,0 +1,17 @@
+#!/bin/bash
+
+if [ "$1" == "" ]; then
+    sudo systemd-nspawn \
+        --bind-ro=/dev/dri \
+        --bind=/tmp/.X11-unix \
+        --bind-ro=/mnt/secondHDD/bin/MATLAB \
+        --bind-ro=/home/frans/Documents/school \
+        --bind-ro=/home/frans/.zshrc \
+        --bind-ro=/home/frans/.config/zsh \
+        --bind=/tmp/shared \
+        -b -D /opt/deb9
+elif [ "$1" == "attach" ]; then
+    sudo systemd-nspawn -D deb9
+fi
+
+
