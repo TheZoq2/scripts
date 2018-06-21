@@ -1,0 +1,8 @@
+sleep 1
+
+xdotool type ':imap jk <Esc>' ; xdotool key 'KP_Enter' ; sleep 0.5
+xdotool type ':map J 10j' ; xdotool key 'KP_Enter' ; sleep 0.5
+xdotool type ':map K 10k' ; xdotool key 'KP_Enter' ; sleep 0.5
+xdotool type ':map ; :' ; xdotool key 'KP_Enter' ; sleep 0.5
+xdotool type ':map j gj' ; xdotool key 'KP_Enter' ; sleep 0.5
+xdotool type ':map k gk' ; xdotool key 'KP_Enter' ; sleep 0.5
