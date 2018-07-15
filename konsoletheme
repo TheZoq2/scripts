@@ -1,9 +1,12 @@
 #!/bin/bash
 
-WATCHFILE=/tmp/colors/konsole
+WATCHPATH=/tmp/colors/
+WATCHFILE=${WATCHPATH}konsole
+
 PROFILE_NAME='Profile 1'
 
 if [ ! -f $WATCHFILE ]; then
+    mkdir -p $WATCHPATH
     touch $WATCHFILE
 fi
 
