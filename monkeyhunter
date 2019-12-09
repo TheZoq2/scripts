@@ -1,0 +1,14 @@
+#!/bin/bash
+
+procastinators=("discord" "telegram")
+
+# Seed random generator
+RANDOM=$$$(date +%s)
+
+while true; do
+    sleep $((RANDOM % 60 + 60))
+    victim=${procastinators[$RANDOM % ${#procastinators[@]} ]}
+    notify-send "Killing ${victim} in 30 seconds"
+    sleep 30
+    pkill "${victim}"
+done
