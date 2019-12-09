@@ -1,6 +1,6 @@
 #!/bin/bash
 
-procastinators=("discord" "telegram")
+procastinators=("Discord" "telegram-desktop")
 
 # Seed random generator
 RANDOM=$$$(date +%s)
@@ -11,4 +11,5 @@ while true; do
     notify-send "Killing ${victim} in 30 seconds"
     sleep 30
     pkill "${victim}"
+    echo "Victim dead, time to find another one"
 done
