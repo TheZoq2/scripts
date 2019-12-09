@@ -6,9 +6,12 @@ procastinators=("Discord" "telegram-desktop")
 RANDOM=$$$(date +%s)
 
 while true; do
-    sleep $((RANDOM % 60 + 60))
+    sleep_time=$((RANDOM % 60 + 30))
+    echo "Killing next victim in ${sleep_time}"
+    sleep ${sleep_time}
     victim=${procastinators[$RANDOM % ${#procastinators[@]} ]}
     notify-send "Killing ${victim} in 30 seconds"
+    echo "Killing ${victim} in 30 seconds"
     sleep 30
     pkill "${victim}"
     echo "Victim dead, time to find another one"
