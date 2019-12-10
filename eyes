@@ -1,0 +1,6 @@
+#!/bin/bash
+
+while true; do
+    notify-send -t 60000 "👀"
+    sleep $((60*20))
+done
