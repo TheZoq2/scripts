@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# No, the telegram desktop process is actually called that
 procastinators=("Discord" "telegram-deskto")
 
 # Seed random generator
@@ -10,9 +11,13 @@ while true; do
     echo "Killing next victim in ${sleep_time}"
     sleep ${sleep_time}
     victim=${procastinators[$RANDOM % ${#procastinators[@]} ]}
-    notify-send "Killing ${victim} in 30 seconds"
-    echo "Killing ${victim} in 30 seconds"
+    if pgrep "${victim}" ; then
+        notify-send "Killing ${victim} in 30 seconds"
+        echo "Killing ${victim} in 30 seconds"
+        pkill "${victim}"
+        echo "Victim dead, time to find another one"
+    else
+        echo "Victim was already dead ${victim}"
+    fi
     sleep 30
-    pkill "${victim}"
-    echo "Victim dead, time to find another one"
 done
