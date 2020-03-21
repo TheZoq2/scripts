@@ -4,5 +4,5 @@
 DEVICE=`xsetwacom --list devices | grep STYLUS | cut -f 2 | cut -d : -f 2`
 
 #xsetwacom --set $DEVICE MapToOutput "1920x1080+1280+1080"
-xsetwacom --set $DEVICE MapToOutput "1920x1080+0+0"
+xsetwacom --set $DEVICE MapToOutput "1920x1080+1080+1080"
 
