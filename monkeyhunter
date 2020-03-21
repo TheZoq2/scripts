@@ -14,10 +14,10 @@ while true; do
     if pgrep "${victim}" ; then
         notify-send "Killing ${victim} in 30 seconds"
         echo "Killing ${victim} in 30 seconds"
+        sleep 30
         pkill "${victim}"
         echo "Victim dead, time to find another one"
     else
         echo "Victim was already dead ${victim}"
     fi
-    sleep 30
 done
