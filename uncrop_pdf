@@ -1,0 +1,148 @@
+#!/bin/bash
+
+set -eo pipefail
+
+# Get the file size of the specified PDF file. The result is put into
+# _page_x and _page_y
+function pdf_size {
+    page_size=$(pdfinfo "$1" \
+       | grep "Page size" \
+       | perl -pe "s/Page size:\s*(\d+) x (\d+).*/\1,\2/g"
+       )
+
+    _page_x=$(cut -f 1 -d "," <<< "$page_size")
+    _page_y=$(cut -f 2 -d "," <<< "$page_size")
+}
+
+echo "Args: $@"
+
+if [[ "$1" == "" ]]; then
+    echo "No input PDF specified"
+    exit 1
+fi
+if [[ "$2" == "" ]]; then
+    echo "No output PDF specified"
+    exit 1
+fi
+if [[ "$3" == "" ]]; then
+    echo "no grid y specified"
+    exit 1
+fi
+if [[ "$4" == "has-pages" ]]; then
+    echo "Cropping page numbers from the right side"
+    crop_page_numbers=yes
+fi
+
+DO_CROP=1
+infile=$1
+outfile=$2
+# For now, we only allow 2 column pages
+gridy=$3
+
+page_count=$(qpdf --show-npages "$infile")
+
+# Split the PDF into individual files into a temp dir
+tmp_dir=$(mktemp -d)
+qpdf --split-pages=1 --warning-exit-0 "$infile" "$tmp_dir/page-%d.pdf"
+
+echo "$page_count"
+
+pdf_size "$infile"
+page_x=$_page_x
+page_y=$_page_y
+
+
+echo "Page size: $page_x $page_y"
+
+while read -r page; do
+    if ((page_count>=10)); then
+        page_name=$(printf "%02d" "$page")
+    else
+        page_name=$page
+    fi
+    echo "new page"
+    page_file="$tmp_dir/page-${page_name}.pdf"
+    left_file="$tmp_dir/left-${page_name}.pdf"
+    right_file="$tmp_dir/right-${page_name}.pdf"
+
+    mid_point=$((page_x/2))
+
+    # Split into left and right columns
+    pdfcrop --bbox "0 0 $mid_point $page_y" "$page_file" "$left_file"
+    pdfcrop --bbox "$mid_point 0 $page_x $page_y" "$page_file" "$right_file"
+
+    # get rid of the margins
+    if test "$DO_CROP"; then
+        pdfcrop "$left_file" "$left_file"
+    fi
+
+    # For the right page, we also have to get rid of the line number if it is present
+    if test "$DO_CROP"; then
+        pdfcrop "$right_file" "$right_file"
+        if [[ "$crop_page_numbers" == "yes" ]]; then
+            pdf_size "$right_file"
+            new_x=$_page_x
+            new_y=$_page_y
+            # Get rid of the page number
+            # Guessing a random constant here
+            pdfcrop "$right_file" --bbox "0 30 $new_x $new_y" "$right_file"
+            # Normalise the page size without the number
+            pdfcrop "$right_file" "$right_file"
+
+            echo "Cropped pages"
+        fi
+    fi
+
+    # Finally, split the rows
+    while read -r col; do
+        echo "Building pages"
+        # Compute the page number of this file
+        # Coordinates are origined in the bottom of the page, so the height is 
+        page_num_left=$(((page-1) * gridy*2 + (gridy-col-1)*2))
+        page_num_right=$((page_num_left+1))
+        echo "$page_num_left from $left_file"
+        echo "$page_num_right from $right_file"
+        page_num_left=$(printf "%05d" $page_num_left)
+        page_num_right=$(printf "%05d" $page_num_right)
+
+        if test "$DO_CROP"; then
+            pdf_size "$right_file"
+            width=$_page_x
+            height=$_page_y
+        else
+            width=$((page_x/2))
+            height=$page_y
+        fi
+
+        col_height=$((height / gridy))
+        col_start=$((col_height * col))
+
+
+        crop_bounds="0 $col_start $width $((col_start+col_height))"
+        left_out="$tmp_dir/out_page-${page_num_left}.pdf"
+        right_out="$tmp_dir/out_page-${page_num_right}.pdf"
+        pdfcrop --bbox "$crop_bounds" "$left_file" "$left_out"
+        pdfcrop --bbox "$crop_bounds" "$right_file" "$right_out"
+    done <<< "$(seq 0 $((gridy-1)))"
+
+    
+done <<< "$(seq 1 "$page_count")"
+
+# Assemble the final pdf
+pages=$(ls "$tmp_dir"/out_page-*.pdf | tr "\n" " ")
+# NOTE: Safe word splitting because we actually want these to be individual args
+pdftk ${pages} cat output "${outfile}"
+
+
+# Convert to A4, attempting to put the slide at the top of the page
+# Compute the offsets required to do this
+TOP=$((page_y/gridy))
+BOT=$((TOP-842))
+pdfcrop --bbox "0 $BOT $((595/2)) $TOP" "$outfile" "$outfile"
+# pdfcrop --margins 40 "$outfile" "$outfile"
+# fi
+
+
+echo "Wrote to tmp: $tmp_dir"
+
+# rm "$tmp_dir" -r
