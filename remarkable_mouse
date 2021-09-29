@@ -1,0 +1,4 @@
+#!/bin/bash
+# sudo remouse --key ~/.ssh/id_rsa --orientation right --evdev
+#xsetwacom --set $DEVICE MapToOutput "1920x1080+1280+1080"
+xsetwacom --set "reMarkable tablet stylus" MapToOutput "1920x1080+1080+1080"
