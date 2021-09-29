@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -o pipefail
+
+VERILATOR_FLAGS=(--lint-only -language 1800-2012 -Wall -Wno-declfilename -Wno-fatal)
+
+verilator "${VERILATOR_FLAGS[@]}" "$1" 2>&1 | \
+	rehl \
+		-y '%Warning' \
+		-b "\w*.v:\d*" \
+		-r '%Error' \
+		-g '... Use "/.*' \
+		-p '\^~*'
+
