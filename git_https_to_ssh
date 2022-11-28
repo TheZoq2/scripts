@@ -1,0 +1,12 @@
+#!/bin/bash
+
+HTTPS_URL=$(git remote get-url origin)
+SSH_URL=$(perl -pe 's|https://(\w+\.\w+)/(\w*)/(\w*)|git@\1:\2/\3|g' <<< "$HTTPS_URL")
+
+if [ -z "$1" ]; then
+    echo New url: "$SSH_URL". Run again with "apply" to apply
+elif [ "$1" == "apply" ]; then
+    git remote set-url origin "$SSH_URL"
+else
+    echo "Unrecognised command $1"
+fi
