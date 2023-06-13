@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -e
+set -o pipefail
+
+if [[ -f $(pwd)/pre-commit ]]; then
+    ln -s $(pwd)/pre-commit $(git rev-parse --git-dir)/hooks
+else
+    echo "No pre-commit hook found in working dir"
+    exit 1
+fi
