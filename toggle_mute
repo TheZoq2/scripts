@@ -1,0 +1,5 @@
+#!/bin/bash
+
+sink_name=$(tr -d "\\n" < ~/.config/audio_info)
+
+pactl set-sink-mute "${sink_name}" toggle
