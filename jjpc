@@ -1,0 +1,3 @@
+#!/bin/bash
+
+jj show @- -s| python3 -c 'import sys; print(" ".join(l[2:] for l in sys.stdin.read().split("\n\n")[-1].split("\n")))' | xargs pre-commit run --files
